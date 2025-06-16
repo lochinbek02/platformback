@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: platform
+    volumes:
+      - ./:/app
+    ports:
+      - "8087:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://myuser:mypassword@db:5432/mydatabase  # Optional: Use environment variable for database URL
+
+  db:
+    image: postgres:latest  # Use standard PostgreSQL image
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    container_name: platform_postgres  # Change the container name for clarity
+    ports:
+      - "5433:5432"
+    volumes:
+      - psql_data:/var/lib/postgresql/data  # Use named volume for persistence
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  psql_data:  # Named volume for PostgreSQL data
