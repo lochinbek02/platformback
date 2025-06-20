@@ -47,3 +47,16 @@ class ArticlePdf(models.Model):
     uploaded_at=models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.title
+class VideoLessons(models.Model):
+    title=models.CharField(max_length=300)
+    file=models.FileField(upload_to='uploads/videolessons')
+    uploaded_at=models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.title
+class Questions(models.Model):
+    name=models.CharField(max_length=250)
+    email=models.EmailField()
+    question=models.TextField()
+    
+    def __str__(self):
+        return self.question

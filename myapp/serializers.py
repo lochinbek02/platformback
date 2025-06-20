@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf
+from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf,VideoLessons,Questions
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +32,12 @@ class ArticlePdfSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticlePdf
         fields=['id','title','file']
+class VideoLessonsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoLessons
+        fields=['id','title','file','uploaded_at']
+
+class QuestionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Questions
+        fields=['id','name','email','question']

@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView,RetrieveAPIView,RetrieveDestroyAPIView,ListAPIView
-from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf
-from .serializers import ArticleSerializer,SlideSerializer,TestSerializer,TestResultSerializer,SlidesPdfSerializer,ArticlePdfSerializer
+from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf,VideoLessons,Questions
+from .serializers import ArticleSerializer,SlideSerializer,TestSerializer,TestResultSerializer,SlidesPdfSerializer,ArticlePdfSerializer,VideoLessonsSerializer,QuestionsSerializer
 import random
 from docx import Document
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -474,3 +474,23 @@ def create_custom_plot_video(request):
     
     except Exception as e:
         return JsonResponse({"status": "Error occurred", "message": str(e)})
+
+class VideoLessonsListAPIView(APIView):
+    def get(self, request):
+        videos = VideoLessons.objects.all()
+        serializer = VideoLessonsSerializer(videos, many=True)
+        return Response(serializer.data)
+class VideoLessonsCreateView(CreateAPIView):
+    queryset = VideoLessons.objects.all()
+    serializer_class = VideoLessonsSerializer
+class VideoLessonsDetailView(RetrieveAPIView):
+    queryset = VideoLessons.objects.all()
+    serializer_class = VideoLessonsSerializer
+    lookup_field = 'id'
+class VideoLessonsRetrieveDestroyView(RetrieveDestroyAPIView):
+    queryset = VideoLessons.objects.all()
+    serializer_class = VideoLessonsSerializer
+
+class QuestionsCreateView(CreateAPIView):
+    queryset = Questions.objects.all()
+    serializer_class = QuestionsSerializer

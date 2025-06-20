@@ -5,6 +5,7 @@ from .views import create_video,create_custom_plot_video,MyTokenObtainPairView,P
 from .views import SlideRetrieveDestroyView,SlideDetailView,SlideListAPIView, SlideCreateView
 from .views import TestCreateView,TestDetailView,TestListAPIView,TestRetrieveDestroyView,SaveTestResultView,TestResultListView,SlideUploadPdfView,ArticleUploadPdfView,ArticleListPdfView,SlideListPdfView
 from .views import PdfRetrieveDestroyView
+from .views import *
 urlpatterns = [
 
     # nazariya
@@ -36,6 +37,13 @@ urlpatterns = [
     # Model yaratish
     path('create-video/', create_video, name='create_video'),
     path('create_custom_plot_video/',create_custom_plot_video, name='create_custom_plot_video'),
+    # video lessons
+    path('video-lessons/', VideoLessonsListAPIView.as_view(), name='video-lessons'),
+    path('video-lessons/<int:id>/', VideoLessonsDetailView.as_view(), name='video-lessons-detail'),
+    path('video-lessons-create/', VideoLessonsCreateView.as_view(), name='video-lessons-create'),
+    path('delete-video-lessons/<int:pk>/', VideoLessonsRetrieveDestroyView.as_view(), name='delete-video-lessons'),
+    # questions
+    path('questions/', QuestionsCreateView.as_view(), name='questions'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
