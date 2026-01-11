@@ -7,11 +7,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView,RetrieveAPIView,RetrieveDestroyAPIView,ListAPIView
-from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf,VideoLessons,Questions
-from .serializers import ArticleSerializer,SlideSerializer,TestSerializer,TestResultSerializer,SlidesPdfSerializer,ArticlePdfSerializer,VideoLessonsSerializer,QuestionsSerializer
+from .models import Article,Slides,Test,TestResult,SlidesPdf,ArticlePdf,VideoLessons,Questions, SubjectInfoPdf, InnovativeSchemePdf, UserSettings, CustomPlotExampleDefault, LimitGraphDefault
+from .serializers import ArticleSerializer,SlideSerializer,TestSerializer,TestResultSerializer,SlidesPdfSerializer,ArticlePdfSerializer,VideoLessonsSerializer,QuestionsSerializer, SubjectInfoPdfSerializer, InnovativeSchemePdfSerializer, SettingsSerializer, UserListSerializer, CustomPlotExampleDefaultSerializer, LimitGraphDefaultSerializer
 import random
 from docx import Document
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -494,3 +494,96 @@ class VideoLessonsRetrieveDestroyView(RetrieveDestroyAPIView):
 class QuestionsCreateView(CreateAPIView):
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
+
+from rest_framework import generics, permissions
+from .models import UserSettings
+from .serializers import SettingsSerializer, UserListSerializer
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        user = request.user
+        new_password = request.data.get('new_password')
+        if new_password:
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Parol yangilandi"}, status=status.HTTP_200_OK)
+        return Response({"error": "Parol kiritilmadi"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserSettingsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        settings, created = UserSettings.objects.get_or_create(user=request.user)
+        serializer = SettingsSerializer(settings)
+        return Response(serializer.data)
+
+    def post(self, request):
+        return self._handle_update(request)
+
+    def put(self, request):
+        return self._handle_update(request)
+
+    def patch(self, request):
+        return self._handle_update(request)
+
+    def _handle_update(self, request):
+        settings, created = UserSettings.objects.get_or_create(user=request.user)
+        serializer = SettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        print(f"DEBUG - Serializer Errors: {serializer.errors}")  # Loglarda xatolarni ko'rish uchun
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Subject Info PDFs
+class SubjectInfoPdfListAPIView(APIView):
+    def get(self, request):
+        pdfs = SubjectInfoPdf.objects.all()
+        serializer = SubjectInfoPdfSerializer(pdfs, many=True)
+        return Response(serializer.data)
+
+class SubjectInfoPdfCreateView(CreateAPIView):
+    queryset = SubjectInfoPdf.objects.all()
+    serializer_class = SubjectInfoPdfSerializer
+
+class SubjectInfoPdfRetrieveDestroyView(RetrieveDestroyAPIView):
+    queryset = SubjectInfoPdf.objects.all()
+    serializer_class = SubjectInfoPdfSerializer
+
+# Innovative Scheme PDFs
+class InnovativeSchemePdfListAPIView(APIView):
+    def get(self, request):
+        pdfs = InnovativeSchemePdf.objects.all()
+        serializer = InnovativeSchemePdfSerializer(pdfs, many=True)
+        return Response(serializer.data)
+
+class InnovativeSchemePdfCreateView(CreateAPIView):
+    queryset = InnovativeSchemePdf.objects.all()
+    serializer_class = InnovativeSchemePdfSerializer
+
+class InnovativeSchemePdfRetrieveDestroyView(RetrieveDestroyAPIView):
+    queryset = InnovativeSchemePdf.objects.all()
+    serializer_class = InnovativeSchemePdfSerializer
+
+
+# CustomPlotExample Default Video View (faqat GET)
+class CustomPlotExampleDefaultListAPIView(APIView):
+    """CustomPlotExample default videolarini olish"""
+    def get(self, request):
+        videos = CustomPlotExampleDefault.objects.filter(is_active=True)
+        serializer = CustomPlotExampleDefaultSerializer(videos, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+# LimitGraph Default Video View (faqat GET)
+class LimitGraphDefaultListAPIView(APIView):
+    """LimitGraph default videolarini olish"""
+    def get(self, request):
+        videos = LimitGraphDefault.objects.filter(is_active=True)
+        serializer = LimitGraphDefaultSerializer(videos, many=True, context={'request': request})
+        return Response(serializer.data)

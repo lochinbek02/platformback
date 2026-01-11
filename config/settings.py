@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-imw5uti7zl=#9(5uu8=%+nu&65r%jski4)celfj)mm^d*8p(v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,8 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -98,6 +97,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -106,14 +107,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Use standard PostgreSQL backend
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'platform',
         'USER': 'lochinbek',
         'PASSWORD': 'lochin',
-        'HOST': 'localhost',  # db o'rniga localhost
+        'HOST': 'db',  # Docker uchun 'db' bo'lishi shart
         'PORT': '5432',
     }
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8087",
+    "https://*.trycloudflare.com",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

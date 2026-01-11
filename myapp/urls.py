@@ -44,6 +44,28 @@ urlpatterns = [
     path('delete-video-lessons/<int:pk>/', VideoLessonsRetrieveDestroyView.as_view(), name='delete-video-lessons'),
     # questions
     path('questions/', QuestionsCreateView.as_view(), name='questions'),
+    
+    # user management and settings
+    path('users/list/', UserListView.as_view(), name='user-list'),
+    path('users/change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('user/settings/', UserSettingsView.as_view(), name='user-settings'),
+    path('user/update-profile/', UserSettingsView.as_view(), name='update-profile'),
+
+    # Subject Info PDFs
+    path('subject-info-pdfs/', SubjectInfoPdfListAPIView.as_view(), name='subject-info-pdf-list'),
+    path('upload-subject-pdf/', SubjectInfoPdfCreateView.as_view(), name='subject-info-pdf-create'),
+    path('delete-subject-info-pdf/<int:pk>/', SubjectInfoPdfRetrieveDestroyView.as_view(), name='subject-info-pdf-delete'),
+
+    # Innovative Scheme PDFs
+    path('innovative-scheme-pdfs/', InnovativeSchemePdfListAPIView.as_view(), name='innovative-scheme-pdf-list'),
+    path('upload-innovative-pdf/', InnovativeSchemePdfCreateView.as_view(), name='innovative-scheme-pdf-create'),
+    path('delete-innovative-scheme-pdf/<int:pk>/', InnovativeSchemePdfRetrieveDestroyView.as_view(), name='innovative-scheme-pdf-delete'),
+
+    # CustomPlotExample Default Video (faqat GET)
+    path('custom-plot-default-video/', CustomPlotExampleDefaultListAPIView.as_view(), name='custom-plot-default'),
+
+    # LimitGraph Default Video (faqat GET)
+    path('limit-graph-default-video/', LimitGraphDefaultListAPIView.as_view(), name='limit-graph-default'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

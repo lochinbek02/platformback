@@ -14,21 +14,21 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://myuser:mypassword@db:5432/mydatabase  # Optional: Use environment variable for database URL
+      - DATABASE_URL=postgres://lochinbek:lochin@db:5432/platform
 
   db:
-    image: postgres:latest  # Use standard PostgreSQL image
+    image: postgres:15-alpine
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
-    container_name: platform_postgres  # Change the container name for clarity
+      POSTGRES_USER: lochinbek
+      POSTGRES_PASSWORD: lochin
+      POSTGRES_DB: platform
+    container_name: platform_postgres
     ports:
       - "5433:5432"
     volumes:
-      - psql_data:/var/lib/postgresql/data  # Use named volume for persistence
+      - psql_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      test: ["CMD-SHELL", "pg_isready -U lochinbek -d platform"]
       interval: 10s
       timeout: 5s
       retries: 5
