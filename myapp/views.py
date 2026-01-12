@@ -366,8 +366,10 @@ def create_video(request):
         scene.render()
 
         # Yaratilgan videoni qaytarish
-        video_url = request.build_absolute_uri(video_path)  # URL manzilini olish
-        return JsonResponse({"status": "Video created!", "video_path": video_path})
+        # Video path: media/videos/videos/1080p60/limit_graph.mp4
+        relative_video_path = video_path.replace("media/", "", 1)
+        video_url = request.build_absolute_uri(f"/media/{relative_video_path}")
+        return JsonResponse({"status": "Video created!", "video_path": video_url})
     except Exception as e:
         return JsonResponse({"status": "Error occurred", "message": str(e)})
 class CustomPlotExample(Scene):
@@ -469,8 +471,11 @@ def create_custom_plot_video(request):
         scene.render()
 
         # Yaratilgan videoni qaytarish
-        video_url = request.build_absolute_uri(video_path)  # URL manzilini olish
-        return JsonResponse({"status": "Video created!", "video_path": video_path})
+        # Video path: media/videos/videos/1080p60/custom_plot_example.mp4
+        # Django MEDIA_URL = '/media/' bo'lgani uchun, to'g'ri URL yaratamiz
+        relative_video_path = video_path.replace("media/", "", 1)  # "videos/videos/1080p60/custom_plot_example.mp4"
+        video_url = request.build_absolute_uri(f"/media/{relative_video_path}")
+        return JsonResponse({"status": "Video created!", "video_path": video_url})
     
     except Exception as e:
         return JsonResponse({"status": "Error occurred", "message": str(e)})
