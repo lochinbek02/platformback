@@ -1,10 +1,7 @@
-# Base image
 FROM python:3.11-slim
 
-# Working directory
 WORKDIR /app
 
-# System dependencies for your application, including LaTeX and ffmpeg
 RUN apt-get update && apt-get install -y \
     texlive-base \
     texlive-latex-extra \
@@ -19,16 +16,13 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && apt-get clean
 
-# Install Python dependencies
-COPY requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r /app/requirements.txt
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy project files
-COPY . /app
+COPY . .
 
-# Expose port 8000 for Django
+ENV PORT=8000
 EXPOSE 8000
+RUN python manage.py collectstatic --noinput
 
-# Run Django application (the command will be handled by docker-compose)
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]

@@ -1,7 +1,11 @@
 Django>=4.0,<5.0
 manim>=0.16.0
+gunicorn
 psycopg2-binary>=2.9
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt 
 python-docx
+dj-database-url
+python-dotenv
+whitenoise
