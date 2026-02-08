@@ -1,5 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings
 from django.http import JsonResponse
+
 from manim import *
 import os
 import json
@@ -346,32 +348,36 @@ class LimitGraph(MovingCameraScene):
 @api_view(['POST'])
 def create_video(request):
     try:
-        data = json.loads(request.body)
-        epsilon = data.get('epsilon', 0.5)  # Agar epsilon kelmasa default 0.5
+        data = request.data
+        epsilon = data.get('epsilon', 0.5)
 
-        video_output_dir = "media/videos/"
-        video_filename = "limit_graph.mp4"
-        video_dir="media/videos/videos/1080p60/"
-        video_path = os.path.join(video_dir, video_filename)
-
+        video_output_dir = os.path.join(settings.MEDIA_ROOT, "videos")
+        # Dinamik fayl nomi (epsilon ga qarab har xil fayl yaratadi)
+        epsilon_str = str(epsilon).replace('.', '_')
+        video_filename = f"limit_graph_{epsilon_str}"
+        
         if not os.path.exists(video_output_dir):
-            os.makedirs(video_output_dir)
+            os.makedirs(video_output_dir, exist_ok=True)
 
         # Manim konfiguratsiyasi
         config.media_dir = video_output_dir  
         config.output_file = video_filename 
+        config.quality = "high_quality"
 
         # LimitGraph sinfini epsilon bilan yaratish
         scene = LimitGraph(epsilon)
         scene.render()
 
-        # Yaratilgan videoni qaytarish
-        # Video path: media/videos/videos/1080p60/limit_graph.mp4
-        relative_video_path = video_path.replace("media/", "", 1)
-        video_url = request.build_absolute_uri(f"/media/{relative_video_path}")
-        return JsonResponse({"status": "Video created!", "video_path": video_url})
+        # Render qilingan fayl yo'li
+        video_path = os.path.join("videos", "videos", "1080p60", f"{video_filename}.mp4")
+        video_url = request.build_absolute_uri(settings.MEDIA_URL + video_path)
+        
+        return Response({"status": "Video created!", "video_path": video_url})
     except Exception as e:
-        return JsonResponse({"status": "Error occurred", "message": str(e)})
+        import traceback
+        print(traceback.format_exc())
+        return Response({"status": "Error occurred", "message": str(e)}, status=500)
+
 class CustomPlotExample(Scene):
     def __init__(self, epsilon, x_end):
         self.epsilon = epsilon
@@ -443,42 +449,45 @@ class CustomPlotExample(Scene):
 
         self.play(Create(small_dots), run_time=1)
         self.wait(2)
-# Django API funksiya
+
 @api_view(['POST'])
 def create_custom_plot_video(request):
     try:
-        # Foydalanuvchidan kelgan ma'lumotlarni o'qish
-        data = json.loads(request.body)
-        epsilon = float(data.get('epsilon', 1))  # Agar epsilon kelmasa default qiymat
+        data = request.data
+        epsilon = float(data.get('epsilon', 1))
         x_end = int(data.get('x_end', 20))
 
-        # Video fayllar uchun katalog
-        video_output_dir = "media/videos/"
-        video_filename = "custom_plot_example.mp4"
-        video_dir="media/videos/videos/1080p60/"
-        video_path = os.path.join(video_dir, video_filename)
-
-        # Katalog mavjudligini tekshirish, agar bo'lmasa yaratish
+        video_output_dir = os.path.join(settings.MEDIA_ROOT, "videos")
+        # Dinamik fayl nomi
+        epsilon_str = str(epsilon).replace('.', '_')
+        video_filename = f"custom_plot_{epsilon_str}_{x_end}"
+        
         if not os.path.exists(video_output_dir):
-            os.makedirs(video_output_dir)
+            os.makedirs(video_output_dir, exist_ok=True)
 
         # Manim sozlamalari
         config.media_dir = video_output_dir  
         config.output_file = video_filename  
+        config.quality = "high_quality"
 
         # Grafikni yaratish
         scene = CustomPlotExample(epsilon, x_end)
         scene.render()
 
-        # Yaratilgan videoni qaytarish
-        # Video path: media/videos/videos/1080p60/custom_plot_example.mp4
-        # Django MEDIA_URL = '/media/' bo'lgani uchun, to'g'ri URL yaratamiz
-        relative_video_path = video_path.replace("media/", "", 1)  # "videos/videos/1080p60/custom_plot_example.mp4"
-        video_url = request.build_absolute_uri(f"/media/{relative_video_path}")
-        return JsonResponse({"status": "Video created!", "video_path": video_url})
+        # Video path qaytarish
+        video_path = os.path.join("videos", "videos", "1080p60", f"{video_filename}.mp4")
+        video_url = request.build_absolute_uri(settings.MEDIA_URL + video_path)
+        
+        return Response({"status": "Video created!", "video_path": video_url})
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return Response({"status": "Error occurred", "message": str(e)}, status=500)
     
     except Exception as e:
-        return JsonResponse({"status": "Error occurred", "message": str(e)})
+        import traceback
+        print(traceback.format_exc()) # Cloud Run loglarida ko'rish uchun
+        return Response({"status": "Error occurred", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class VideoLessonsListAPIView(APIView):
     def get(self, request):

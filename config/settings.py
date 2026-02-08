@@ -101,8 +101,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS sozlamalari
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.netlify\.app$",
+]
+
+# CSRF sozlamalari
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.run.app",
+    "https://*.netlify.app",
+] + os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin] # Bo'sh stringlarni olib tashlaydi
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -118,7 +129,8 @@ DATABASES = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.run.app"
+    "https://*.run.app",
+    "https://matematik-analiz.netlify.app",
 ]
 
 # Password validation
